@@ -1,0 +1,390 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rahul Jetwani | Portfolio</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#111418;
+      --surface:#1D1F23;
+      --text-primary:#E6E6E6;
+      --text-secondary:#A9A9B3;
+      --accent1:#F9A826;
+      --accent2:#679186;
+      --border:#2A2E35;
+      --font-header: "Space Grotesk", sans-serif;
+      --font-body: "Inter", sans-serif;
+      --font-mono: "JetBrains Mono", monospace;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;width:100%;background:var(--bg);color:var(--text-primary);font-family:var(--font-body);overflow:hidden}
+
+    /* Header - full width bar, items spaced evenly */
+    header{
+      position:fixed;top:0;left:0;width:100%;
+      background:rgba(29,31,35,0.85);backdrop-filter:blur(10px);
+      display:flex;justify-content:space-around;align-items:center;
+      padding:18px 0;z-index:1000;border-bottom:1px solid var(--border);
+    }
+    header a{
+      color:var(--text-primary);text-decoration:none;font-family:var(--font-header);
+      font-weight:600;font-size:17px;letter-spacing:0.2px;transition:color .18s;
+    }
+    header a:hover{color:var(--accent1)}
+
+    /* Page wrapper: show/hide pages */
+    .page{display:none;width:100%;height:100vh;align-items:center;justify-content:center;text-align:center;padding:2rem;position:relative}
+    .page.active{display:flex}
+
+    /* ---------- HOME / INTRO ---------- */
+    .intro{flex-direction:column}
+    .intro h1{font-family:var(--font-header);font-size:2.8rem;color:var(--accent1);margin-bottom:.5rem;}
+    .intro h2{font-family:var(--font-header);font-size:1.6rem;color:var(--accent2);margin:1rem 0;}
+    .intro p{max-width:720px;color:var(--text-secondary);margin-bottom:1.6rem;line-height:1.6}
+
+    .btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+    .btn{padding:.85rem 1.6rem;border-radius:8px;text-decoration:none;font-weight:600;font-family:var(--font-header);cursor:pointer;transition:all .25s}
+    .btn-primary{background:var(--accent1);color:#111418}
+    .btn-primary:hover{background:var(--accent2);color:#fff}
+    .btn-outline{border:2px solid var(--accent1);color:var(--accent1);background:transparent}
+    .btn-outline:hover{border-color:var(--accent2);color:var(--accent2)}
+
+    /* ---------- Projects (scroll area) ---------- */
+    .projects-page{display:flex;flex-direction:column;width:100%;height:100%;overflow:hidden}
+    .projects-wrapper{
+      width:100%;height:100%;overflow-y:scroll;scroll-snap-type:y mandatory;
+      -ms-overflow-style:none;scrollbar-width:none;position:relative;
+      scroll-behavior:smooth;
+    }
+    .projects-wrapper::-webkit-scrollbar{display:none}
+
+    .project{
+      width:100%;height:100vh;scroll-snap-align:start;scroll-snap-stop:always;
+      display:flex;align-items:center;justify-content:center;gap:2.5rem;padding:3.5rem;
+    }
+    /* alternate layout (image left/text right) and reverse */
+    .project:nth-child(even){flex-direction:row-reverse}
+
+    /* slideshow area */
+    .slideshow{
+      flex:1;background:var(--surface);border-radius:12px;height:70%;
+      position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;
+    }
+    .slideshow img{
+      position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease;
+    }
+    .slideshow img.active{opacity:1}
+
+    /* small caption overlay (optional) */
+    .slideshow .caption{
+      position:absolute;left:14px;bottom:12px;background:rgba(0,0,0,0.45);padding:.35rem .6rem;border-radius:6px;
+      color:var(--text-primary);font-size:.85rem;font-family:var(--font-mono)
+    }
+
+    /* project text stacked vertically */
+    .project-text{flex:1;display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:1rem 0}
+    .project-text h3{font-size:2rem;margin-bottom:1rem;color:var(--accent1);font-family:var(--font-header)}
+    .project-text p{color:var(--text-secondary);margin-bottom:1.25rem;max-width:560px;line-height:1.55}
+    .project-text .btn{margin-top:8px}
+
+    /* indicator dots on the right - only visible in projects */
+    .indicator{
+      position:fixed;right:20px;top:50%;transform:translateY(-50%);
+      display:flex;flex-direction:column;gap:12px;z-index:1200;
+      opacity:0;visibility:hidden;transition:opacity .3s, visibility .3s;
+    }
+    .indicator.visible{opacity:1;visibility:visible}
+    .dot{width:12px;height:12px;border-radius:50%;background:var(--text-secondary);transition:all .25s;cursor:pointer}
+    .dot:hover{transform:scale(1.15);background:var(--accent2)}
+    .dot.active{background:var(--accent1);transform:scale(1.2)}
+
+    /* responsive */
+    @media (max-width:900px){
+      .project{flex-direction:column;padding:2rem}
+      .project:nth-child(even){flex-direction:column}
+      .slideshow{width:90%;height:45%}
+      .project-text{width:90%;padding-top:1.25rem;align-items:center;text-align:center}
+      .project-text h3{text-align:center}
+      .indicator{right:10px;gap:10px}
+      .dot{width:10px;height:10px}
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER (always visible) -->
+  <header>
+    <a href="#" data-target="intro">Home</a>
+    <a href="#" data-target="projects">Projects</a>
+    <a href="about.html">About</a>
+  </header>
+
+  <!-- HOME / INTRO PAGE -->
+  <main id="intro" class="page active intro">
+    <div>
+      <h1>Rahul Jetwani</h1>
+      <h2>Game Developer / Unity Programmer</h2>
+      <p>
+        Hi, I'm Rahul. Unity game programmer / Student from Indore — I work on 2D & 3D systems, prototyping,
+        game jam builds and gameplay systems. Check out a few of my projects that show my programming & design abilities.
+      </p>
+
+      <div class="btns">
+        <a class="btn btn-primary" href="#">Download CV</a>
+        <a class="btn btn-outline" href="mailto:your@email.com">Email</a>
+        <a class="btn btn-outline" href="#">LinkedIn</a>
+        <a class="btn btn-outline" href="#">Itch.io</a>
+        <a class="btn btn-outline" href="#">Instagram</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- PROJECTS PAGE (fullscreen scrollable area) -->
+  <div id="projects" class="page projects-page" aria-hidden="true">
+    <div class="projects-wrapper" id="projectsWrapper">
+      <!-- Project 1 -->
+      <section class="project">
+        <div class="slideshow" data-index="0">
+          <img src="assets/nftcc.png" alt="Game1 screenshot 1" class="active">
+          <img src="assets/nftccaa.png" alt="Game1 screenshot 2">
+          <img src="assets/nftccaaa.png" alt="Game1 screenshot 3">
+          <div class="caption">Screenshot 1</div>
+        </div>
+
+        <div class="project-text">
+          <h3>Nightmares of the Creepy Cube</h3>
+          <p>
+            <strong>Nightmares of the Creepy Cube</strong> is a 2D stealth-survival game developed in Unity, 
+            where you play as a creepy cube escaping through a nightmare world while avoiding hostile robots.
+            I handled all programming, visual effects, and music, focusing on core gameplay, cosmetics, and early level design.
+          </p>
+          <a class="btn btn-primary" href="nftcc.html">Learn More</a>
+        </div>
+      </section>
+
+      <!-- Project 2 -->
+      <section class="project">
+        <div class="slideshow" data-index="1">
+          <img src="assets/tc01.jpg" alt="Game2 screenshot 1" class="active">
+          <img src="assets/tc02.PNG" alt="Game2 screenshot 2">
+          <img src="assets/tc03.PNG" alt="Game2 screenshot 3">
+        </div>
+
+        <div class="project-text">
+          <h3>Taxi Chaos</h3>
+          <p>
+            <strong>Taxi Chaos</strong> is a 3D linear open-world taxi simulator built in Unity, 
+            where you play as a driver navigating a low-poly city, picking up NPC passengers and dropping them off as quickly and safely as possible.
+            I designed and implemented the entire game system from scratch, handling core mechanics, AI traffic, mission logic, and rewards.
+          </p>
+          <a class="btn btn-primary" href="tc.html">Learn More</a>
+        </div>
+      </section>
+
+      <!-- Project 3 -->
+      <section class="project">
+        <div class="slideshow" data-index="2">
+          <img src="assets/eod01.jpg" alt="Game3 screenshot 1" class="active">
+          <img src="assets/eod02.PNG" alt="Game3 screenshot 2">
+          <img src="assets/eod03.PNG" alt="Game3 screenshot 2">
+        </div>
+
+        <div class="project-text">
+          <h3>EYES ON DUTY</h3>
+          <p><strong>Eyes on Duty</strong> is a mobile horror observation game developed in Unity,
+          inspired by the I'm on Observation Duty series. Players monitor cameras in a haunted restaurant,
+          identifying and reporting paranormal anomalies before they escalate. I developed all core systems and UI logic.
+          </p>
+          <a class="btn btn-primary" href="eod.html">Learn More</a>
+        </div>
+      </section>
+
+      <!-- Project 4 -->
+      <section class="project">
+        <div class="slideshow" data-index="3">
+          <img src="assets/gj01.PNG" alt="Game4 screenshot 1" class="active">
+          <img src="assets/gj02.PNG" alt="Game4 screenshot 2">
+        </div>
+
+        <div class="project-text">
+          <h3>GAME JAMS</h3>
+          <p>
+            I've joined several <strong>game jams</strong>, building small games under tight deadlines; some finished, 
+            some not. These fast-paced challenges taught me rapid prototyping, creative problem-solving, and time management.
+          </p>
+          <a class="btn btn-primary" href="gj.html">Learn More</a>
+        </div>
+      </section>
+    </div>
+
+    <!-- indicator dots -->
+    <div class="indicator" id="indicator" aria-hidden="false">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- Navigation between Home / Projects ---------- */
+    const headerLinks = document.querySelectorAll('header a[data-target]');
+    const pages = document.querySelectorAll('.page');
+    const indicator = document.getElementById('indicator');
+
+    function showPage(id){
+      pages.forEach(p => {
+        if (p.id === id){
+          p.classList.add('active');
+          p.removeAttribute('aria-hidden');
+        } else {
+          p.classList.remove('active');
+          p.setAttribute('aria-hidden','true');
+        }
+      });
+
+      if (id === 'projects') {
+        indicator.classList.add('visible');
+        scrollToProject(currentIndex, true);
+      } else {
+        indicator.classList.remove('visible');
+      }
+    }
+
+    headerLinks.forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        e.preventDefault();
+        showPage(a.dataset.target);
+      });
+    });
+
+    /* ---------- Projects scrolling setup ---------- */
+    const projectsWrapper = document.getElementById('projectsWrapper');
+    const projectSections = Array.from(projectsWrapper.querySelectorAll('.project'));
+    const dots = Array.from(document.querySelectorAll('.dot'));
+    let currentIndex = 0;
+    let isScrolling = false;
+    let scrollTimeout;
+
+    function updateDots(i){
+      dots.forEach((d, idx)=> d.classList.toggle('active', idx === i));
+    }
+
+    function scrollToProject(i, instant=false){
+      if (i < 0) i = 0;
+      if (i >= projectSections.length) i = projectSections.length - 1;
+      currentIndex = i;
+      
+      const top = projectSections[i].offsetTop;
+      projectsWrapper.scrollTo({ top, behavior: instant ? 'auto' : 'smooth' });
+      updateDots(i);
+    }
+
+    projectsWrapper.addEventListener('wheel', (e)=>{
+      if (!document.getElementById('projects').classList.contains('active')) return;
+      e.preventDefault();
+      if (isScrolling) return;
+      const delta = e.deltaY;
+      if (Math.abs(delta) > 5) {
+        isScrolling = true;
+        if (delta > 0 && currentIndex < projectSections.length - 1){
+          scrollToProject(currentIndex + 1);
+        } else if (delta < 0 && currentIndex > 0){
+          scrollToProject(currentIndex - 1);
+        }
+        setTimeout(() => { isScrolling = false; }, 800);
+      }
+    }, { passive:false });
+
+    document.addEventListener('keydown', (e)=>{
+      if (!document.getElementById('projects').classList.contains('active')) return;
+      if (e.key === 'ArrowDown'){
+        e.preventDefault();
+        if (currentIndex < projectSections.length - 1){
+          scrollToProject(currentIndex + 1);
+        }
+      } else if (e.key === 'ArrowUp'){
+        e.preventDefault();
+        if (currentIndex > 0){
+          scrollToProject(currentIndex - 1);
+        }
+      }
+    });
+
+    let touchStartY = null;
+    let touchStartTime = null;
+    projectsWrapper.addEventListener('touchstart', (e)=> {
+      if (!document.getElementById('projects').classList.contains('active')) return;
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = Date.now();
+    }, {passive:true});
+    projectsWrapper.addEventListener('touchend', (e)=> {
+      if (touchStartY === null || isScrolling) return;
+      const endY = e.changedTouches[0].clientY;
+      const deltaY = touchStartY - endY;
+      const deltaTime = Date.now() - touchStartTime;
+      if (Math.abs(deltaY) > 50 && deltaTime < 300) {
+        isScrolling = true;
+        if (deltaY > 0 && currentIndex < projectSections.length-1) {
+          scrollToProject(currentIndex + 1);
+        } else if (deltaY < 0 && currentIndex > 0) {
+          scrollToProject(currentIndex - 1);
+        }
+        setTimeout(() => { isScrolling = false; }, 800);
+      }
+      touchStartY = null;
+      touchStartTime = null;
+    }, {passive:true});
+
+    projectsWrapper.addEventListener('scroll', ()=> {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(()=> {
+        let nearest = 0;
+        let nearestDist = Infinity;
+        projectSections.forEach((s, idx)=> {
+          const rect = s.getBoundingClientRect();
+          const dist = Math.abs(rect.top);
+          if (dist < nearestDist){ nearestDist = dist; nearest = idx; }
+        });
+        if (nearest !== currentIndex) {
+          currentIndex = nearest;
+          updateDots(currentIndex);
+        }
+      }, 100);
+    });
+
+    dots.forEach((dot, idx)=> {
+      dot.addEventListener('click', ()=> {
+        if (!isScrolling) {
+          scrollToProject(idx);
+        }
+      });
+    });
+
+    const slideshows = Array.from(document.querySelectorAll('.slideshow'));
+    const slideshowState = [];
+    slideshows.forEach((box, i)=>{
+      const imgs = Array.from(box.querySelectorAll('img'));
+      slideshowState[i] = { imgs, current: 0, timer: null };
+      imgs.forEach((im, idx)=> im.classList.toggle('active', idx===0));
+      slideshowState[i].timer = setInterval(()=> {
+        const st = slideshowState[i];
+        st.imgs[st.current].classList.remove('active');
+        st.current = (st.current + 1) % st.imgs.length;
+        st.imgs[st.current].classList.add('active');
+      }, 4000);
+    });
+
+    showPage('intro');
+
+    document.addEventListener('keydown', (e)=>{
+      if (e.key === 'Escape') showPage('intro');
+    });
+  </script>
+</body>
+</html>
